@@ -31,7 +31,7 @@ namespace UoW.Api
 
             services.AddDbContext<ApplicationContext>(
                 opt => 
-                    opt.UseSqlServer(Configuration.GetConnectionString("Default")));
+                    opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
