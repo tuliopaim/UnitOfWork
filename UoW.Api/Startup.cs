@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using UoW.Api.Data;
 
 namespace UoW.Api
 {
@@ -27,7 +29,9 @@ namespace UoW.Api
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<>()
+            services.AddDbContext<ApplicationContext>(
+                opt => 
+                    opt.UseSqlServer(Configuration.GetConnectionString("Default")));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
