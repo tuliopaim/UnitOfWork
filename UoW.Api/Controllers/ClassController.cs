@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc; 
 using UoW.Api.Domain.Entities;
+using UoW.Api.Domain.Filters;
 using UoW.Api.Domain.Interfaces;
 using UoW.Api.DTOs;
 
@@ -47,6 +48,12 @@ namespace UoW.Api.Controllers
             return await _repository.GetFullById(id);
         }
 
+        [HttpPost("filter")]
+        public async Task<IEnumerable<Class>> Filter([FromBody] ClassFilter filter)
+        {
+            return await _repository.FilterAsync(filter);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddClassDto model)
         {
@@ -63,6 +70,8 @@ namespace UoW.Api.Controllers
 
             return Ok();
         }
+
+
 
         [HttpPost("add-student")]
         public async Task<IActionResult> AddStudent([FromBody] ClassStudentDto model)
@@ -87,8 +96,9 @@ namespace UoW.Api.Controllers
             return Ok();
         }
 
-        [HttpPost("remove-student")]
-        public async Task<IActionResult> RemoveStudent([FromBody] ClassStudentDto model)
+
+        [HttpDelete("remove-student")]
+        public async Task<IActionResult> RemoveStudent([FromQuery] ClassStudentDto model)
         {
             if (!ModelState.IsValid)
             {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UoW.Api.Domain.Entities;
+using UoW.Api.Domain.Filters;
 using UoW.Api.Domain.Interfaces;
 using UoW.Api.DTOs;
 
@@ -43,6 +44,12 @@ namespace UoW.Api.Controllers
         public async Task<Student> GetFullById(Guid id)
         {
             return await _repository.GetFullById(id);
+        }
+
+        [HttpPost("filter")]
+        public async Task<IEnumerable<Student>> Filter([FromBody] StudentFilter filter)
+        {
+            return await _repository.FilterAsync(filter);
         }
 
         [HttpPost]
