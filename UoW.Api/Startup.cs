@@ -13,6 +13,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using UoW.Api.Data;
+using UoW.Api.Data.Repositories;
+using UoW.Api.Domain.Interfaces;
 
 namespace UoW.Api
 {
@@ -28,10 +30,12 @@ namespace UoW.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddDbContext<ApplicationContext>(
                 opt => 
                     opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IClassRepository, ClassRepository>();
+            services.AddScoped<IStudentRepository, StudentRepository>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
