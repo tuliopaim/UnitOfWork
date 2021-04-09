@@ -8,9 +8,9 @@ namespace UoW.Api.Domain.Interfaces
 {
     public interface IClassRepository : IGenericRepository<Class>
     {
-        Task<IEnumerable<Class>> GetFull(bool track = false);
+        Task<IEnumerable<Class>> GetFullAsync(bool track = false);
 
-        Task<Class> GetFullById(Guid id, bool track = false);
+        Task<Class> GetFullByIdAsync(Guid id, bool track = false);
 
         Task<IEnumerable<Class>> FilterAsync(
             ClassFilter filter,

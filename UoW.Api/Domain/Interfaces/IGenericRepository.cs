@@ -14,7 +14,7 @@ namespace UoW.Api.Domain.Interfaces
         void LogicRemove(T entity);
         void Update(T entity);
 
-        Task<IEnumerable<T>> Get(bool track = false);
+        Task<IEnumerable<T>> GetAsync(bool track = false);
 
         Task<T> GetByIdAsync(Guid id, bool track = false);
 

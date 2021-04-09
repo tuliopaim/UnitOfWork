@@ -27,7 +27,7 @@ namespace UoW.Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<Class>> Get()
         {
-            return await _repository.Get();
+            return await _repository.GetAsync();
         }
 
         [HttpGet("{id:guid}")]
@@ -39,13 +39,13 @@ namespace UoW.Api.Controllers
         [HttpGet("full")]
         public async Task<IEnumerable<Class>> GetFull()
         {
-            return await _repository.GetFull();
+            return await _repository.GetFullAsync();
         }
 
         [HttpGet("full/{id:guid}")]
         public async Task<Class> GetFullById(Guid id)
         {
-            return await _repository.GetFullById(id);
+            return await _repository.GetFullByIdAsync(id);
         }
 
         [HttpPost("filter")]
@@ -79,7 +79,7 @@ namespace UoW.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var classEntity = await _repository.GetFullById(model.ClassId, true);
+            var classEntity = await _repository.GetFullByIdAsync(model.ClassId, true);
             var studentEntity = await _studentRepository.GetByIdAsync(model.StudentId);
 
             if (classEntity is null || studentEntity is null)
@@ -102,7 +102,7 @@ namespace UoW.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var classEntity = await _repository.GetFullById(model.ClassId, true);
+            var classEntity = await _repository.GetFullByIdAsync(model.ClassId, true);
 
             if (classEntity is null)
             {

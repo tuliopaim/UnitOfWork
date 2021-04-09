@@ -18,7 +18,7 @@ namespace UoW.Api.Data.Repositories
             _context = context;
         }
 
-        public async Task<Class> GetFullById(Guid id, bool track = false)
+        public async Task<Class> GetFullByIdAsync(Guid id, bool track = false)
         {
             var list = await SearchAsync(
                 x => x.Id == id,
@@ -28,7 +28,7 @@ namespace UoW.Api.Data.Repositories
             return list?.FirstOrDefault();
         }
 
-        public async Task<IEnumerable<Class>> GetFull(bool track = false)
+        public async Task<IEnumerable<Class>> GetFullAsync(bool track = false)
         {
             return await SearchAsync(
                 include: q => q.Include(s => s.Students),

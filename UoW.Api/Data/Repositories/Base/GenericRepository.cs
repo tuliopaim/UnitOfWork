@@ -43,7 +43,7 @@ namespace UoW.Api.Data.Repositories.Base
             _dbSet.Update(entity);
         }
 
-        public async Task<IEnumerable<T>> Get(bool track = false)
+        public async Task<IEnumerable<T>> GetAsync(bool track = false)
         {
             return await _dbSet.OrderByDescending(x => x.CreatedAt).ToListAsync();
         }

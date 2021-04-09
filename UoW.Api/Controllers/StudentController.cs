@@ -25,7 +25,7 @@ namespace UoW.Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<Student>> Get()
         {
-            return await _repository.Get();
+            return await _repository.GetAsync();
         }
 
         [HttpGet("{id:guid}")]
@@ -37,13 +37,13 @@ namespace UoW.Api.Controllers
         [HttpGet("full")]
         public async Task<IEnumerable<Student>> GetFull()
         {
-            return await _repository.GetFull();
+            return await _repository.GetFullAsync();
         }
 
         [HttpGet("full/{id:guid}")]
         public async Task<Student> GetFullById(Guid id)
         {
-            return await _repository.GetFullById(id);
+            return await _repository.GetFullByIdAsync(id);
         }
 
         [HttpPost("filter")]
