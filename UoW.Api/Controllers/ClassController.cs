@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc; 
 using UoW.Api.Domain.Entities;
 using UoW.Api.Domain.Interfaces;
 using UoW.Api.DTOs;
