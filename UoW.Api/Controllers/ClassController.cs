@@ -14,11 +14,13 @@ namespace UoW.Api.Controllers
     public class ClassController : ControllerBase
     {
         private readonly IClassRepository _repository;
+        private readonly IStudentRepository _studentRepository;
         private readonly IUnitOfWork _uow;
 
-        public ClassController(IClassRepository repository, IUnitOfWork uow)
+        public ClassController(IClassRepository repository, IStudentRepository studentRepository, IUnitOfWork uow)
         {
             _repository = repository;
+            _studentRepository = studentRepository;
             _uow = uow;
         }
 
@@ -56,6 +58,32 @@ namespace UoW.Api.Controllers
 
             return Ok();
         }
+
+        [HttpPost("add-student")]
+        public async Task<IActionResult> AddStudent([FromBody] AddStudentInClass model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var classEntity = await _repository.GetFullById(model.ClassId);
+            var studentEntity = await _studentRepository.GetByIdAsync(model.StudentId);
+
+            if (classEntity is null || studentEntity is null)
+            {
+                return NotFound();
+            }
+
+            classEntity.AddStudent(studentEntity);
+
+            _repository.Update(classEntity);
+
+            await _uow.CommitAsync();
+
+            return Ok();
+        }
+        
 
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
