@@ -21,32 +21,19 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<Student> GetFullById(Guid id, bool track = false)
         {
-            var query = _context.Students.AsQueryable();
+            var list = await SearchAsync(
+                x => x.Id == id,
+                q => q.Include(s => s.Classes),
+                track: track);
 
-            if (!track)
-            {
-                query = query.AsNoTracking();
-            }
-
-            return await query
-                .Include(c => c.Classes)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            return list?.FirstOrDefault();
         }
 
         public async Task<IEnumerable<Student>> GetFull(bool track = false)
         {
-            var query = _context.Students
-                .OrderByDescending(x => x.CreatedAt)
-                .AsQueryable();
-
-            if (!track)
-            {
-                query = query.AsNoTracking();
-            }
-
-            return await query
-                .Include(c => c.Classes)
-                .ToListAsync();
+            return await SearchAsync(
+                include: q => q.Include(s => s.Classes),
+                track: track);
         }
 
         public async Task<IEnumerable<Student>> FilterAsync(
