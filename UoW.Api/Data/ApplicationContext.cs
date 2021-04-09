@@ -13,8 +13,11 @@ namespace UoW.Api.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        }
 
+            modelBuilder.Entity<Class>().HasQueryFilter(c => c.Removed == false);
+            modelBuilder.Entity<Student>().HasQueryFilter(c => c.Removed == false);
+        }
+        
         public DbSet<Class> Classes { get; set; }
 
         public DbSet<Student> Students { get; set; }
