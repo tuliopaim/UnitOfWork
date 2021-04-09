@@ -7,13 +7,15 @@ namespace UoW.Api.Domain.Entities
     {
         protected Student()
         {
+            _classes = new List<Class>();
         }
 
         public Student(string name, DateTime birthDate)
         {
+            _classes = new List<Class>();
+
             Name = name;
             BirthDate = birthDate;
-            _classes = new List<Class>();
         }
 
         public string Name { get; private set; }

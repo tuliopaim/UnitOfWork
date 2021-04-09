@@ -8,19 +8,20 @@ namespace UoW.Api.Domain.Entities
     {
         protected Class()
         {
+            _students = new List<Student>();
         }
 
-        public Class(string className, string teacherName)
+        public Class(string name, string teacherName)
         {
             _students = new List<Student>();
             
+            Name = name;
             TeacherName = teacherName;
-            Name = className;
 
             Year = DateTime.Now.Year;
         }
         
-        public long Code { get; set; }
+        public long Code { get; }
 
         public string Name { get; private set; }
 
