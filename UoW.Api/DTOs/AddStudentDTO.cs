@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UoW.Api.DTOs
 {
-    public class AddStudentDTO
+    public class AddStudentDto
     {
         [Required]
         public string Name { get; set; }

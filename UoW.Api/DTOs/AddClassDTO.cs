@@ -2,7 +2,7 @@
 
 namespace UoW.Api.DTOs
 {
-    public class AddClassDTO
+    public class AddClassDto
     {
         [Required]
         [MaxLength(200)]
