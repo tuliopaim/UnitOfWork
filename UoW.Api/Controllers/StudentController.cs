@@ -10,7 +10,7 @@ using UoW.Api.DTOs;
 namespace UoW.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("student")]
     public class StudentController : ControllerBase
     {
         private readonly IUnitOfWork _uow;

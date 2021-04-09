@@ -10,7 +10,7 @@ using UoW.Api.DTOs;
 namespace UoW.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("class")]
     public class ClassController : ControllerBase
     {
         private readonly IClassRepository _repository;
@@ -70,9 +70,7 @@ namespace UoW.Api.Controllers
 
             return Ok();
         }
-
-
-
+        
         [HttpPost("add-student")]
         public async Task<IActionResult> AddStudent([FromBody] ClassStudentDto model)
         {
@@ -95,8 +93,7 @@ namespace UoW.Api.Controllers
 
             return Ok();
         }
-
-
+        
         [HttpDelete("remove-student")]
         public async Task<IActionResult> RemoveStudent([FromQuery] ClassStudentDto model)
         {
@@ -118,8 +115,7 @@ namespace UoW.Api.Controllers
 
             return Ok();
         }
-
-
+        
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
