@@ -7,7 +7,9 @@ namespace UoW.Api.Domain.Interfaces
 {
     public interface IClassRepository : IGenericRepository<Class>
     {
-        Task<Class> GetFullById(Guid id);
+        Task<IEnumerable<Class>> GetFull(bool track = false);
+
+        Task<Class> GetFullById(Guid id, bool track = false);
 
         Task<IEnumerable<Class>> FilterAsync(
             long code,

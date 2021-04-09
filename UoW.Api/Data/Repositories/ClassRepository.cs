@@ -16,12 +16,33 @@ namespace UoW.Api.Data.Repositories
         {
             _context = context;
         }
-        
-        public async Task<Class> GetFullById(Guid id)
+
+        public async Task<Class> GetFullById(Guid id, bool track = false)
         {
-            return await _context.Classes
+            var query = _context.Classes.AsQueryable();
+
+            if (!track)
+            {
+                query = query.AsNoTracking();
+            }
+
+            return await query
                 .Include(c => c.Students)
                 .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<IEnumerable<Class>> GetFull(bool track = false)
+        {
+            var query = _context.Classes.AsQueryable();
+
+            if (!track)
+            {
+                query = query.AsNoTracking();
+            }
+
+            return await query
+                .Include(c => c.Students)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Class>> FilterAsync(
@@ -32,35 +53,35 @@ namespace UoW.Api.Data.Repositories
             bool complete = false,
             bool track = false)
         {
-            var querie = _context.Classes
+            var query = _context.Classes
                 .Where(c => c.Code == code);
 
             if (!string.IsNullOrWhiteSpace(name))
             {
-                querie = querie.Where(c => c.Name == name);
+                query = query.Where(c => c.Name == name);
             }
 
             if (year.HasValue)
             {
-                querie = querie.Where(c => c.Year == year.Value);
+                query = query.Where(c => c.Year == year.Value);
             }
 
             if (!string.IsNullOrWhiteSpace(teacherName))
             {
-                querie = querie.Where(c => c.TeacherName == teacherName);
+                query = query.Where(c => c.TeacherName == teacherName);
             }
 
             if (complete)
             {
-                querie = querie.Include(c => c.Students);
+                query = query.Include(c => c.Students);
             }
 
             if (!track)
             {
-                querie = querie.AsNoTracking();
+                query = query.AsNoTracking();
             }
 
-            return await querie.ToListAsync();
+            return await query.ToListAsync();
         }
     }
 }
