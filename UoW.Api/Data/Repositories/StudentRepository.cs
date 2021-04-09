@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using UoW.Api.Data.Repositories.Base;
 using UoW.Api.Domain.Entities;
+using UoW.Api.Domain.Filters;
 using UoW.Api.Domain.Interfaces;
 
 namespace UoW.Api.Data.Repositories
@@ -34,7 +35,9 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<IEnumerable<Student>> GetFull(bool track = false)
         {
-            var query = _context.Students.AsQueryable();
+            var query = _context.Students
+                .OrderByDescending(x => x.CreatedAt)
+                .AsQueryable();
 
             if (!track)
             {
@@ -47,37 +50,44 @@ namespace UoW.Api.Data.Repositories
         }
 
         public async Task<IEnumerable<Student>> FilterAsync(
-            string name,
-            DateTime? from = null,
-            DateTime? to = null,
-            bool complete = false,
+            StudentFilter filter,
             bool track = false)
         {
-            var querie = _context.Students
-                .Where(s =>
-                    s.Name == name);
-
-            if (from.HasValue)
-            {
-                querie = querie.Where(s => s.BirthDate >= from.Value);
-            }
-
-            if (to.HasValue)
-            {
-                querie = querie.Where(s => s.BirthDate <= to.Value);
-            }
-
-            if (complete)
-            {
-                querie = querie.Include(s => s.Classes);
-            }
+            var query = _context.Students
+                .OrderByDescending(x => x.CreatedAt)
+                .AsQueryable();
 
             if (!track)
             {
-                querie = querie.AsNoTracking();
+                query = query.AsNoTracking();
             }
 
-            return await querie.ToListAsync();
+            if (!string.IsNullOrWhiteSpace(filter.Name))
+            {
+                query = query.Where(s =>s.Name == filter.Name);
+            }
+
+            if (filter.BirthDateFrom.HasValue)
+            {
+                query = query.Where(s => s.BirthDate >= filter.BirthDateFrom);
+            }
+
+            if (filter.BirthDateTo.HasValue)
+            {
+                query = query.Where(s => s.BirthDate <= filter.BirthDateTo.Value);
+            }
+
+            if (filter.Complete)
+            {
+                query = query.Include(s => s.Classes);
+            }
+
+            if (filter.Index.HasValue)
+            {
+                query = query.Skip(filter.Index.Value).Take(filter.PageSize.Value);
+            }
+            
+            return await query.ToListAsync();
         }
     }
 }

@@ -45,7 +45,7 @@ namespace UoW.Api.Data.Repositories.Base
 
         public async Task<IEnumerable<T>> Get(bool track = false)
         {
-            return await _dbSet.ToListAsync();
+            return await _dbSet.OrderByDescending(x => x.CreatedAt).ToListAsync();
         }
 
         public async Task<T> GetByIdAsync(Guid id, bool track = false)

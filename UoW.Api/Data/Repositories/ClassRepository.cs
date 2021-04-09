@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using UoW.Api.Data.Repositories.Base;
 using UoW.Api.Domain.Entities;
+using UoW.Api.Domain.Filters;
 using UoW.Api.Domain.Interfaces;
 
 namespace UoW.Api.Data.Repositories
@@ -33,7 +34,9 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<IEnumerable<Class>> GetFull(bool track = false)
         {
-            var query = _context.Classes.AsQueryable();
+            var query = _context.Classes
+                .OrderByDescending(x => x.CreatedAt)
+                .AsQueryable();
 
             if (!track)
             {
@@ -46,39 +49,46 @@ namespace UoW.Api.Data.Repositories
         }
 
         public async Task<IEnumerable<Class>> FilterAsync(
-            long code,
-            string name = null,
-            int? year = null,
-            string teacherName = null,
-            bool complete = false,
+            ClassFilter filter,
             bool track = false)
         {
             var query = _context.Classes
-                .Where(c => c.Code == code);
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                query = query.Where(c => c.Name == name);
-            }
-
-            if (year.HasValue)
-            {
-                query = query.Where(c => c.Year == year.Value);
-            }
-
-            if (!string.IsNullOrWhiteSpace(teacherName))
-            {
-                query = query.Where(c => c.TeacherName == teacherName);
-            }
-
-            if (complete)
-            {
-                query = query.Include(c => c.Students);
-            }
+                .OrderByDescending(x => x.CreatedAt)
+                .AsQueryable();
 
             if (!track)
             {
                 query = query.AsNoTracking();
+            }
+
+            if (filter.Code.HasValue)
+            {
+                query = query.Where(c => c.Code == filter.Code);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.Name))
+            {
+                query = query.Where(c => c.Name == filter.Name);
+            }
+
+            if (filter.Year.HasValue)
+            {
+                query = query.Where(c => c.Year == filter.Year);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.TeacherName))
+            {
+                query = query.Where(c => c.TeacherName == filter.TeacherName);
+            }
+
+            if (filter.Complete)
+            {
+                query = query.Include(c => c.Students);
+            }
+
+            if (filter.Index.HasValue)
+            {
+                query = query.Skip(filter.Index.Value).Take(filter.PageSize.Value);
             }
 
             return await query.ToListAsync();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UoW.Api.Domain.Entities;
+using UoW.Api.Domain.Filters;
 
 namespace UoW.Api.Domain.Interfaces
 {
@@ -11,11 +12,6 @@ namespace UoW.Api.Domain.Interfaces
 
         Task<Student> GetFullById(Guid id, bool track = false);
 
-        Task<IEnumerable<Student>> FilterAsync(
-            string name,
-            DateTime? from = null,
-            DateTime? to = null,
-            bool complete = false,
-            bool track = false);
+        Task<IEnumerable<Student>> FilterAsync(StudentFilter filter, bool track = false);
     }
 }
