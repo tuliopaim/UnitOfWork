@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace UoW.Api.Domain.Entities
 {
@@ -42,7 +43,15 @@ namespace UoW.Api.Domain.Entities
         
         public void AddStudent(Student newStudent)
         {
+            if (_students.Any(s => s.Id == newStudent.Id))
+                return;
+            
             _students.Add(newStudent);
+        }
+
+        public void RemoveStudent(Guid studentId)
+        {
+            _students.RemoveAll(s => s.Id == studentId);
         }
 
         private List<Student> _students;

@@ -33,6 +33,12 @@ namespace UoW.Api.Controllers
             return await _repository.GetByIdAsync(id);
         }
 
+        [HttpGet("full")]
+        public async Task<IEnumerable<Student>> GetFull()
+        {
+            return await _repository.GetFull();
+        }
+
         [HttpGet("full/{id:guid}")]
         public async Task<Student> GetFullById(Guid id)
         {
@@ -40,7 +46,7 @@ namespace UoW.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] AddStudentDTO model)
+        public async Task<IActionResult> Create([FromBody] AddStudentDto model)
         {
             if (!ModelState.IsValid)
             {

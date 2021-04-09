@@ -35,6 +35,12 @@ namespace UoW.Api.Controllers
             return await _repository.GetByIdAsync(id);
         }
 
+        [HttpGet("full")]
+        public async Task<IEnumerable<Class>> GetFull()
+        {
+            return await _repository.GetFull();
+        }
+
         [HttpGet("full/{id:guid}")]
         public async Task<Class> GetFullById(Guid id)
         {
@@ -42,7 +48,7 @@ namespace UoW.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] AddClassDTO model)
+        public async Task<IActionResult> Create([FromBody] AddClassDto model)
         {
             if (!ModelState.IsValid)
             {
@@ -59,14 +65,14 @@ namespace UoW.Api.Controllers
         }
 
         [HttpPost("add-student")]
-        public async Task<IActionResult> AddStudent([FromBody] AddStudentInClass model)
+        public async Task<IActionResult> AddStudent([FromBody] ClassStudentDto model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var classEntity = await _repository.GetFullById(model.ClassId);
+            var classEntity = await _repository.GetFullById(model.ClassId, true);
             var studentEntity = await _studentRepository.GetByIdAsync(model.StudentId);
 
             if (classEntity is null || studentEntity is null)
@@ -76,13 +82,33 @@ namespace UoW.Api.Controllers
 
             classEntity.AddStudent(studentEntity);
 
-            _repository.Update(classEntity);
-
             await _uow.CommitAsync();
 
             return Ok();
         }
-        
+
+        [HttpPost("remove-student")]
+        public async Task<IActionResult> RemoveStudent([FromBody] ClassStudentDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var classEntity = await _repository.GetFullById(model.ClassId, true);
+
+            if (classEntity is null)
+            {
+                return NotFound();
+            }
+
+            classEntity.RemoveStudent(model.StudentId);
+            
+            await _uow.CommitAsync();
+
+            return Ok();
+        }
+
 
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
