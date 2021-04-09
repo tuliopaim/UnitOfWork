@@ -36,6 +36,7 @@ namespace UoW.Api
 
             services.AddScoped<IClassRepository, ClassRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

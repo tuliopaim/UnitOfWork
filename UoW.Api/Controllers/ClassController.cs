@@ -13,13 +13,13 @@ namespace UoW.Api.Controllers
     [Route("[controller]")]
     public class ClassController : ControllerBase
     {
-        private readonly ILogger<ClassController> _logger;
         private readonly IClassRepository _repository;
+        private readonly IUnitOfWork _uow;
 
-        public ClassController(ILogger<ClassController> logger, IClassRepository repository)
+        public ClassController(IClassRepository repository, IUnitOfWork uow)
         {
-            _logger = logger;
             _repository = repository;
+            _uow = uow;
         }
 
         [HttpGet]
@@ -52,7 +52,7 @@ namespace UoW.Api.Controllers
 
             _repository.Add(entity);
 
-            await _repository.SaveChangesAsync();
+            await _uow.CommitAsync();
 
             return Ok();
         }
@@ -69,7 +69,7 @@ namespace UoW.Api.Controllers
 
             _repository.LogicRemove(entity);
 
-            await _repository.SaveChangesAsync();
+            await _uow.CommitAsync();
 
             return Ok();
         }

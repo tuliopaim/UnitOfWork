@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace UoW.Api.Domain.Interfaces
 {
-    public interface IGenericRepository<T>
+    public interface IGenericRepository<T> : IDisposable
     {
         void Add(T entity);
         void Remove(T entity);
@@ -28,7 +28,5 @@ namespace UoW.Api.Domain.Interfaces
             int? skip = null,
             int? take = null,
             bool track = false);
-
-        Task SaveChangesAsync();
     }
 }

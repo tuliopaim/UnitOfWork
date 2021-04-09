@@ -102,9 +102,9 @@ namespace UoW.Api.Data.Repositories.Base
             return await query.ToListAsync();
         }
 
-        public async Task SaveChangesAsync()
+        public void Dispose()
         {
-            await _context.SaveChangesAsync();
+            _context?.Dispose();
         }
     }
 }
