@@ -11,16 +11,24 @@ namespace UoW.Api.Domain.Interfaces
     {
         void Add(T entity);
         void Remove(T entity);
+        void LogicRemove(T entity);
         void Update(T entity);
 
-        Task<T> GetByIdAsync(Guid id);
-        Task<T> FirstAsync(Expression<Func<T, bool>> expression);
+        Task<IEnumerable<T>> Get(bool track = false);
+
+        Task<T> GetByIdAsync(Guid id, bool track = false);
+
+        Task<T> FirstAsync(Expression<Func<T, bool>> expression, bool track = false);
+
         Task<int> CountAsync(Expression<Func<T, bool>> expression);
 
         Task<List<T>> SearchAsync(
             Expression<Func<T, bool>> expression = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
             int? skip = null,
-            int? take = null);
+            int? take = null,
+            bool track = false);
+
+        Task SaveChangesAsync();
     }
 }
