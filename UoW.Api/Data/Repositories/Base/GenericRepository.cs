@@ -21,12 +21,12 @@ namespace UoW.Api.Data.Repositories.Base
             _dbSet = context.Set<T>();
         }
 
-        public void Add(T entity)
+        public virtual void Add(T entity)
         {
             _dbSet.Add(entity);
         }
 
-        public void Remove(T entity)
+        public virtual void Remove(T entity)
         {
             if (_context.Entry(entity).State == EntityState.Detached)
             {
@@ -36,18 +36,13 @@ namespace UoW.Api.Data.Repositories.Base
             _dbSet.Remove(entity);
         }
         
-        public void Update(T entity)
+        public virtual void Update(T entity)
         {
             _dbSet.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
         }
 
-        public async Task<IEnumerable<T>> GetAsync(bool track = false)
-        {
-            return await _dbSet.OrderByDescending(x => x.CreatedAt).ToListAsync();
-        }
-
-        public async Task<T> GetByIdAsync(Guid id, bool track = false)
+        public virtual async Task<T> GetByIdAsync(Guid id, bool track = false)
         {
             var query = _dbSet.AsQueryable();
 
@@ -57,24 +52,27 @@ namespace UoW.Api.Data.Repositories.Base
             return await query.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<int> CountAsync(Expression<Func<T, bool>> expression)
+        public virtual async Task<int> CountAsync(Expression<Func<T, bool>> expression)
         {
-
             return await _dbSet.CountAsync(expression);
         }
 
-        public async Task<T> FirstAsync(Expression<Func<T, bool>> expression, bool track = false)
+        public virtual async Task<T> FirstAsync(
+            Expression<Func<T, bool>> expression,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+            bool track = false)
         {
-
             var query = _dbSet.AsQueryable();
 
             if (!track)
                 query = query.AsNoTracking();
 
+            include?.Invoke(query);
+
             return await query.FirstOrDefaultAsync(expression);
         }
 
-        public async Task<List<T>> SearchAsync(
+        public async Task<List<T>> GetAsync(
             Expression<Func<T, bool>> expression = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
