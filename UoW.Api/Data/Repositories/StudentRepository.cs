@@ -21,12 +21,10 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<Student> GetFullByIdAsync(Guid id, bool track = false)
         {
-            var list = await GetAsync(
+            return await FirstAsync(
                 x => x.Id == id,
                 q => q.Include(s => s.Classes),
-                track: track);
-
-            return list?.FirstOrDefault();
+                track);
         }
 
         public async Task<IEnumerable<Student>> GetFullAsync(bool track = false)
@@ -37,24 +35,13 @@ namespace UoW.Api.Data.Repositories
                 track: track);
         }
 
-        public async Task<IEnumerable<Student>> FilterAsync(
-            StudentFilter filter,
-            bool track = false)
+        public async Task<IEnumerable<Student>> FilterAsync(StudentFilter filter, bool track = false)
         {
-            var query = _context.Students.AsQueryable();
+            var query = _context.Students.OrderBy(s => s.CreatedAt).AsQueryable();
 
             if (!track) 
                 query = query.AsNoTracking();
-
-            query = ApplyFilter(query , filter);
-
-            return await query.ToListAsync();
-        }
-
-        private IQueryable<Student> ApplyFilter(IQueryable<Student> query, StudentFilter filter)
-        {
-            query = query.OrderBy(s => s.CreatedAt);
-
+            
             if (filter.FullObject)
             {
                 query = query.Include(s => s.Classes);
@@ -62,7 +49,7 @@ namespace UoW.Api.Data.Repositories
 
             filter.HandleQuery(query);
 
-            return query;
+            return await query.ToListAsync();
         }
     }
 }
