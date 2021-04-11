@@ -14,42 +14,40 @@ namespace UoW.Api.Controllers
     public class StudentController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
-        private readonly IStudentRepository _repository;
 
-        public StudentController(IStudentRepository repository, IUnitOfWork uow)
+        public StudentController(IUnitOfWork uow)
         {
-            _repository = repository;
             _uow = uow;
         }
 
         [HttpGet]
         public async Task<IEnumerable<Student>> Get()
         {
-            return await _repository.GetAsync();
+            return await _uow.StudentRepository.GetAsync();
         }
 
         [HttpGet("{id:guid}")]
         public async Task<Student> GetById(Guid id)
         {
-            return await _repository.GetByIdAsync(id);
+            return await _uow.StudentRepository.GetByIdAsync(id);
         }
 
         [HttpGet("full")]
         public async Task<IEnumerable<Student>> GetFull()
         {
-            return await _repository.GetFullAsync();
+            return await _uow.StudentRepository.GetFullAsync();
         }
 
         [HttpGet("full/{id:guid}")]
         public async Task<Student> GetFullById(Guid id)
         {
-            return await _repository.GetFullByIdAsync(id);
+            return await _uow.StudentRepository.GetFullByIdAsync(id);
         }
 
         [HttpPost("filter")]
         public async Task<IEnumerable<Student>> Filter([FromBody] StudentFilter filter)
         {
-            return await _repository.FilterAsync(filter);
+            return await _uow.StudentRepository.FilterAsync(filter);
         }
 
         [HttpPost]
@@ -62,7 +60,7 @@ namespace UoW.Api.Controllers
 
             var entity = new Student(model.Name, model.BirthDate);
 
-            _repository.Add(entity);
+            _uow.StudentRepository.Add(entity);
 
             await _uow.CommitAsync();
 
@@ -72,14 +70,16 @@ namespace UoW.Api.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await _uow.StudentRepository.GetByIdAsync(id);
 
             if (entity == null)
             {
                 return NotFound();
             }
 
-            _repository.LogicRemove(entity);
+            entity.Remove();
+
+            _uow.StudentRepository.Update(entity);
 
             await _uow.CommitAsync();
 

@@ -6,7 +6,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using UoW.Api.Data;
-using UoW.Api.Data.Repositories;
 using UoW.Api.Domain.Interfaces;
 
 namespace UoW.Api
@@ -26,15 +25,13 @@ namespace UoW.Api
             services.AddDbContext<ApplicationContext>(
                 opt => 
                     opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddScoped<IClassRepository, ClassRepository>();
-            services.AddScoped<IStudentRepository, StudentRepository>();
+            
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddControllers().AddNewtonsoftJson(options =>
-                {
-                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                });
+            {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
 
             services.AddSwaggerGen(c =>
             {

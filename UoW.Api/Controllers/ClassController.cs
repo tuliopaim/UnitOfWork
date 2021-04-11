@@ -13,45 +13,41 @@ namespace UoW.Api.Controllers
     [Route("class")]
     public class ClassController : ControllerBase
     {
-        private readonly IClassRepository _repository;
-        private readonly IStudentRepository _studentRepository;
         private readonly IUnitOfWork _uow;
 
-        public ClassController(IClassRepository repository, IStudentRepository studentRepository, IUnitOfWork uow)
+        public ClassController(IUnitOfWork uow)
         {
-            _repository = repository;
-            _studentRepository = studentRepository;
             _uow = uow;
         }
 
         [HttpGet]
         public async Task<IEnumerable<Class>> Get()
         {
-            return await _repository.GetAsync();
+            return await _uow.ClassRepository.GetAsync();
         }
 
         [HttpGet("{id:guid}")]
         public async Task<Class> GetById(Guid id)
         {
-            return await _repository.GetByIdAsync(id);
+            return await _uow.ClassRepository.GetByIdAsync(id);
         }
 
         [HttpGet("full")]
         public async Task<IEnumerable<Class>> GetFull()
         {
-            return await _repository.GetFullAsync();
+            return await _uow.ClassRepository.GetFullAsync();
         }
 
         [HttpGet("full/{id:guid}")]
         public async Task<Class> GetFullById(Guid id)
         {
-            return await _repository.GetFullByIdAsync(id);
+            return await _uow.ClassRepository.GetFullByIdAsync(id);
         }
 
         [HttpPost("filter")]
         public async Task<IEnumerable<Class>> Filter([FromBody] ClassFilter filter)
         {
-            return await _repository.FilterAsync(filter);
+            return await _uow.ClassRepository.FilterAsync(filter);
         }
 
         [HttpPost]
@@ -64,7 +60,7 @@ namespace UoW.Api.Controllers
 
             var entity = new Class(model.Name, model.TeacherName);
 
-            _repository.Add(entity);
+            _uow.ClassRepository.Add(entity);
 
             await _uow.CommitAsync();
 
@@ -79,8 +75,8 @@ namespace UoW.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var classEntity = await _repository.GetFullByIdAsync(model.ClassId, true);
-            var studentEntity = await _studentRepository.GetByIdAsync(model.StudentId);
+            var classEntity = await _uow.ClassRepository.GetFullByIdAsync(model.ClassId, true);
+            var studentEntity = await _uow.StudentRepository.GetByIdAsync(model.StudentId);
 
             if (classEntity is null || studentEntity is null)
             {
@@ -102,7 +98,7 @@ namespace UoW.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var classEntity = await _repository.GetFullByIdAsync(model.ClassId, true);
+            var classEntity = await _uow.ClassRepository.GetFullByIdAsync(model.ClassId, true);
 
             if (classEntity is null)
             {
@@ -119,14 +115,16 @@ namespace UoW.Api.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var entity = await _repository.GetByIdAsync(id, true);
+            var entity = await _uow.ClassRepository.GetByIdAsync(id, true);
 
             if (entity == null)
             {
                 return NotFound();
             }
 
-            _repository.LogicRemove(entity);
+            entity.Remove();
+
+            _uow.ClassRepository.Update(entity);
 
             await _uow.CommitAsync();
 
