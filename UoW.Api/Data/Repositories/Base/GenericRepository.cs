@@ -28,12 +28,18 @@ namespace UoW.Api.Data.Repositories.Base
 
         public void Remove(T entity)
         {
+            if (_context.Entry(entity).State == EntityState.Detached)
+            {
+                _dbSet.Attach(entity);
+            }
+
             _dbSet.Remove(entity);
         }
         
         public void Update(T entity)
         {
-            _dbSet.Update(entity);
+            _dbSet.Attach(entity);
+            _context.Entry(entity).State = EntityState.Modified;
         }
 
         public async Task<IEnumerable<T>> GetAsync(bool track = false)
@@ -71,6 +77,7 @@ namespace UoW.Api.Data.Repositories.Base
         public async Task<List<T>> SearchAsync(
             Expression<Func<T, bool>> expression = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             int? skip = null,
             int? take = null,
             bool track = false)
@@ -82,9 +89,9 @@ namespace UoW.Api.Data.Repositories.Base
 
             if (expression != null)
                 query = query.Where(expression);
-
-            if (include != null)
-                query = include(query);
+            
+            include?.Invoke(query);
+            orderBy?.Invoke(query);
 
             if (skip.HasValue)
                 query = query.Skip(skip.Value);

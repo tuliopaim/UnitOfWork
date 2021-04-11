@@ -24,6 +24,7 @@ namespace UoW.Api.Domain.Interfaces
         Task<List<T>> SearchAsync(
             Expression<Func<T, bool>> expression = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             int? skip = null,
             int? take = null,
             bool track = false);
