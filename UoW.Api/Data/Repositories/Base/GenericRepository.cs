@@ -44,12 +44,7 @@ namespace UoW.Api.Data.Repositories.Base
 
         public virtual async Task<T> GetByIdAsync(Guid id, bool track = false)
         {
-            var query = _dbSet.AsQueryable();
-
-            if (!track)
-                query = query.AsNoTracking();
-
-            return await query.FirstOrDefaultAsync(x => x.Id == id);
+            return await BuildQuery(track: track).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public virtual async Task<int> CountAsync(Expression<Func<T, bool>> expression)
