@@ -10,9 +10,9 @@ namespace UoW.Api.Domain.Filters
         public int? Year { get; set; }
         public string TeacherName { get; set; }
 
-        public IQueryable<Class> HandleQuery(IQueryable<Class> query)
+        public IQueryable<Class> ApplyToQuery(IQueryable<Class> query)
         {
-            query = base.HandleQuery(query);
+            query = base.ApplyToQuery(query);
 
             if (Code.HasValue)
                 query = query.Where(c => c.Code == Code);

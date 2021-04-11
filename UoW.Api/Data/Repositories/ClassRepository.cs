@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using UoW.Api.Data.Repositories.Base;
 using UoW.Api.Domain.Entities;
 using UoW.Api.Domain.Filters;
@@ -22,14 +23,14 @@ namespace UoW.Api.Data.Repositories
         {
             return await FirstAsync(
                 x => x.Id == id,
-                q => q.Include(s => s.Students),
+                FullClassQuery(),
                 track);
         }
 
         public async Task<IEnumerable<Class>> GetFullAsync(bool track = false)
         {
             return await GetAsync(
-                include: q => q.Include(s => s.Students),
+                include: FullClassQuery(),
                 track: track);
         }
 
@@ -42,13 +43,16 @@ namespace UoW.Api.Data.Repositories
             if (!track) query = query.AsNoTracking();
 
             if (filter.FullObject)
-            {
-                query = query.Include(c => c.Students);
-            }
+                query = FullClassQuery().Invoke(query);
 
-            query = filter.HandleQuery(query);
+            query = filter.ApplyToQuery(query);
 
             return await query.ToListAsync();
+        }
+
+        private static Func<IQueryable<Class>, IIncludableQueryable<Class, object>> FullClassQuery()
+        {
+            return q => q.Include(s => s.Students);
         }
     }
 }

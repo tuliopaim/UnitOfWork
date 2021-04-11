@@ -10,9 +10,9 @@ namespace UoW.Api.Domain.Filters
         public DateTime? BirthDateFrom { get; set; }
         public DateTime? BirthDateTo { get; set; }
 
-        public IQueryable<Student> HandleQuery(IQueryable<Student> query)
+        public IQueryable<Student> ApplyToQuery(IQueryable<Student> query)
         {
-            query = base.HandleQuery(query);
+            query = base.ApplyToQuery(query);
 
             if (!string.IsNullOrWhiteSpace(Name))
                 query = query.Where(s => s.Name == Name);

@@ -18,7 +18,7 @@ namespace UoW.Api.Domain.Filters
             ? (Page - 1) * PageSize 
             : 0;
 
-        public IQueryable<T> HandleQuery<T>(IQueryable<T> query)
+        public IQueryable<T> ApplyToQuery<T>(IQueryable<T> query)
         {
             if (ValidPagination)
                 query = query.Skip(Index.Value).Take(PageSize.Value);
