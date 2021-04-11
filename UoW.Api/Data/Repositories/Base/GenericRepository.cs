@@ -30,14 +30,7 @@ namespace UoW.Api.Data.Repositories.Base
         {
             _dbSet.Remove(entity);
         }
-
-        public void LogicRemove(T entity)
-        {
-            entity.Remove();
-
-            Update(entity);
-        }
-
+        
         public void Update(T entity)
         {
             _dbSet.Update(entity);

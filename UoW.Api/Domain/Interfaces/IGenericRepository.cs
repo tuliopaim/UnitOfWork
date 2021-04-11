@@ -11,7 +11,6 @@ namespace UoW.Api.Domain.Interfaces
     {
         void Add(T entity);
         void Remove(T entity);
-        void LogicRemove(T entity);
         void Update(T entity);
 
         Task<IEnumerable<T>> GetAsync(bool track = false);
