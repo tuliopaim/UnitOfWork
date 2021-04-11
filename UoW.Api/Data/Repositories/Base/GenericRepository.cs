@@ -62,17 +62,21 @@ namespace UoW.Api.Data.Repositories.Base
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
             bool track = false)
         {
-            var query = _dbSet.AsQueryable();
-
-            if (!track)
-                query = query.AsNoTracking();
-
-            include?.Invoke(query);
-
-            return await query.FirstOrDefaultAsync(expression);
+            return await BuildQuery(expression, include, track: track).FirstOrDefaultAsync(expression);
         }
 
         public async Task<List<T>> GetAsync(
+            Expression<Func<T, bool>> expression = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            int? skip = null,
+            int? take = null,
+            bool track = false)
+        {
+            return await BuildQuery(expression, include, orderBy, skip, take, track).ToListAsync();
+        }
+
+        private IQueryable<T> BuildQuery(
             Expression<Func<T, bool>> expression = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
@@ -87,9 +91,12 @@ namespace UoW.Api.Data.Repositories.Base
 
             if (expression != null)
                 query = query.Where(expression);
-            
-            include?.Invoke(query);
-            orderBy?.Invoke(query);
+
+            if (include != null)
+                query = include(query);
+
+            if (orderBy != null)
+                query = orderBy(query);
 
             if (skip.HasValue)
                 query = query.Skip(skip.Value);
@@ -97,9 +104,9 @@ namespace UoW.Api.Data.Repositories.Base
             if (take.HasValue)
                 query = query.Take(take.Value);
 
-            return await query.ToListAsync();
+            return query;
         }
-
+        
         public void Dispose()
         {
             _context?.Dispose();
