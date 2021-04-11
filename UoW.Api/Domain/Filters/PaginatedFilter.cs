@@ -10,16 +10,11 @@ namespace UoW.Api.Domain.Filters
         [Range(1, int.MaxValue)]
         public int? PageSize { get; set; }
 
-        public int? Index 
-        { 
-            get
-            {
-                if (!Page.HasValue || !PageSize.HasValue) 
-                    return null;
+        public bool ValidPagination => 
+            Page.HasValue && PageSize.HasValue && Page.Value > 1 && PageSize.Value > 0;
 
-                return (Page - 1) * PageSize;
-            }
-        }
-
+        public int? Index => ValidPagination 
+            ? (Page - 1) * PageSize 
+            : 0;
     }
 }
