@@ -41,11 +41,9 @@ namespace UoW.Api.Data.Repositories
         {
             var query = _context.Students.OrderBy(s => s.CreatedAt).AsQueryable();
             
-            if (!track) 
-                query = query.AsNoTracking();
+            if (!track) query = query.AsNoTracking();
 
-            if (filter.FullObject)
-                query = FullStudentQuery().Invoke(query);
+            if (filter.FullObject) query = FullStudentQuery().Invoke(query);
 
             query = filter.ApplyToQuery(query);
 

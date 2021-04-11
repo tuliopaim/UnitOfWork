@@ -42,8 +42,7 @@ namespace UoW.Api.Data.Repositories
 
             if (!track) query = query.AsNoTracking();
 
-            if (filter.FullObject)
-                query = FullClassQuery().Invoke(query);
+            if (filter.FullObject) query = FullClassQuery().Invoke(query);
 
             query = filter.ApplyToQuery(query);
 

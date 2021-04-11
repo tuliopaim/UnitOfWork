@@ -71,7 +71,7 @@ namespace UoW.Api.Data.Repositories.Base
             return await BuildQuery(expression, include, orderBy, skip, take, track).ToListAsync();
         }
 
-        private IQueryable<T> BuildQuery(
+        protected IQueryable<T> BuildQuery(
             Expression<Func<T, bool>> expression = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
@@ -81,23 +81,17 @@ namespace UoW.Api.Data.Repositories.Base
         {
             var query = _dbSet.AsQueryable();
 
-            if (!track)
-                query = query.AsNoTracking();
+            if (!track) query = query.AsNoTracking();
 
-            if (expression != null)
-                query = query.Where(expression);
+            if (expression != null) query = query.Where(expression);
 
-            if (include != null)
-                query = include(query);
+            if (include != null) query = include(query);
 
-            if (orderBy != null)
-                query = orderBy(query);
+            if (orderBy != null) query = orderBy(query);
 
-            if (skip.HasValue)
-                query = query.Skip(skip.Value);
+            if (skip.HasValue) query = query.Skip(skip.Value);
 
-            if (take.HasValue)
-                query = query.Take(take.Value);
+            if (take.HasValue) query = query.Take(take.Value);
 
             return query;
         }
