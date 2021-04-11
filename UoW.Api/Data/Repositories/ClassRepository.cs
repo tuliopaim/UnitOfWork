@@ -20,17 +20,15 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<Class> GetFullByIdAsync(Guid id, bool track = false)
         {
-            var list = await SearchAsync(
+            return  await FirstAsync(
                 x => x.Id == id,
                 q => q.Include(s => s.Students),
-                track: track);
-
-            return list?.FirstOrDefault();
+                track);
         }
 
         public async Task<IEnumerable<Class>> GetFullAsync(bool track = false)
         {
-            return await SearchAsync(
+            return await GetAsync(
                 include: q => q.Include(s => s.Students),
                 track: track);
         }
@@ -39,46 +37,27 @@ namespace UoW.Api.Data.Repositories
             ClassFilter filter,
             bool track = false)
         {
-            var query = _context.Classes
-                .OrderByDescending(x => x.CreatedAt)
-                .AsQueryable();
+            var query = _context.Classes.OrderBy(x => x.Code).AsQueryable();
 
-            if (!track)
-            {
-                query = query.AsNoTracking();
-            }
+            if (!track) query = query.AsNoTracking();
 
-            if (filter.Code.HasValue)
-            {
-                query = query.Where(c => c.Code == filter.Code);
-            }
+            query = BuildFilteredQuery(query, filter);
 
-            if (!string.IsNullOrWhiteSpace(filter.Name))
-            {
-                query = query.Where(c => c.Name == filter.Name);
-            }
+            return await query.ToListAsync();
+        }
 
-            if (filter.Year.HasValue)
-            {
-                query = query.Where(c => c.Year == filter.Year);
-            }
+        private IQueryable<Class> BuildFilteredQuery(IQueryable<Class> query, ClassFilter filter)
+        {
+            query = query.OrderBy(c => c.Code);
 
-            if (!string.IsNullOrWhiteSpace(filter.TeacherName))
-            {
-                query = query.Where(c => c.TeacherName == filter.TeacherName);
-            }
-
-            if (filter.Complete)
+            if (filter.FullObject)
             {
                 query = query.Include(c => c.Students);
             }
 
-            if (filter.Index.HasValue)
-            {
-                query = query.Skip(filter.Index.Value).Take(filter.PageSize.Value);
-            }
+            query = filter.HandleQuery(query);
 
-            return await query.ToListAsync();
+            return query;
         }
     }
 }

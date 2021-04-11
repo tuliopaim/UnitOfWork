@@ -21,7 +21,7 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<Student> GetFullByIdAsync(Guid id, bool track = false)
         {
-            var list = await SearchAsync(
+            var list = await GetAsync(
                 x => x.Id == id,
                 q => q.Include(s => s.Classes),
                 track: track);
@@ -31,8 +31,9 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<IEnumerable<Student>> GetFullAsync(bool track = false)
         {
-            return await SearchAsync(
+            return await GetAsync(
                 include: q => q.Include(s => s.Classes),
+                orderBy: q => q.OrderBy(s => s.CreatedAt),
                 track: track);
         }
 
@@ -40,41 +41,28 @@ namespace UoW.Api.Data.Repositories
             StudentFilter filter,
             bool track = false)
         {
-            var query = _context.Students
-                .OrderByDescending(x => x.CreatedAt)
-                .AsQueryable();
+            var query = _context.Students.AsQueryable();
 
-            if (!track)
-            {
+            if (!track) 
                 query = query.AsNoTracking();
-            }
 
-            if (!string.IsNullOrWhiteSpace(filter.Name))
-            {
-                query = query.Where(s =>s.Name == filter.Name);
-            }
+            query = ApplyFilter(query , filter);
 
-            if (filter.BirthDateFrom.HasValue)
-            {
-                query = query.Where(s => s.BirthDate >= filter.BirthDateFrom);
-            }
+            return await query.ToListAsync();
+        }
 
-            if (filter.BirthDateTo.HasValue)
-            {
-                query = query.Where(s => s.BirthDate <= filter.BirthDateTo.Value);
-            }
+        private IQueryable<Student> ApplyFilter(IQueryable<Student> query, StudentFilter filter)
+        {
+            query = query.OrderBy(s => s.CreatedAt);
 
-            if (filter.Complete)
+            if (filter.FullObject)
             {
                 query = query.Include(s => s.Classes);
             }
 
-            if (filter.Index.HasValue)
-            {
-                query = query.Skip(filter.Index.Value).Take(filter.PageSize.Value);
-            }
-            
-            return await query.ToListAsync();
+            filter.HandleQuery(query);
+
+            return query;
         }
     }
 }
