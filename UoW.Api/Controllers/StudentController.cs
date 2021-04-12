@@ -82,6 +82,37 @@ namespace UoW.Api.Controllers
             return Ok();
         }
 
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UpdateStudentDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var entity = await _uow.StudentRepository.GetByIdAsync(model.Id, track: true);
+
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Name))
+            {
+                entity.AlterName(model.Name);
+            }
+            
+            if (model.BirthDate.HasValue)
+            {
+                entity.AlterBirthDate(model.BirthDate.Value);
+            }
+
+            await _uow.CommitAsync();
+
+            return Ok();
+        }
+
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
