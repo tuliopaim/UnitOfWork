@@ -21,7 +21,7 @@ namespace UoW.Api.Domain.Filters
         public IQueryable<T> ApplyToQuery<T>(IQueryable<T> query)
         {
             if (ValidPagination)
-                query = query.Skip(Index.Value).Take(PageSize.Value);
+                query = query.Skip(Index!.Value).Take(PageSize!.Value);
 
             return query;
         }

@@ -11,14 +11,16 @@ namespace UoW.Api.Domain.Entities
             _students = new List<Student>();
         }
 
-        public Class(string name, string teacherName)
+        public Class(string name, string teacherName, int? year = null)
         {
             _students = new List<Student>();
             
             Name = name;
             TeacherName = teacherName;
 
-            Year = DateTime.Now.Year;
+            Year = year.HasValue && year.Value > 2000
+                ? year.Value
+                : DateTime.Now.Year;
         }
         
         public long Code { get; }
@@ -36,11 +38,16 @@ namespace UoW.Api.Domain.Entities
             Name = newClassName;
         }
 
-        public void AlterTeacherName(string teacherName)
+        public void AlterTeacherName(string newTeacherName)
         {
-            TeacherName = teacherName;
+            TeacherName = newTeacherName;
         }
-        
+
+        public void AlterYear(int newYear)
+        {
+            Year = newYear;
+        }
+
         public void AddStudent(Student newStudent)
         {
             if (_students.Any(s => s.Id == newStudent.Id))

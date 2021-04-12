@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Mvc; 
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata;
 using UoW.Api.Domain.Entities;
 using UoW.Api.Domain.Filters;
 using UoW.Api.Domain.Interfaces;
@@ -73,7 +74,7 @@ namespace UoW.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var entity = new Class(model.Name, model.TeacherName);
+            var entity = new Class(model.Name, model.TeacherName, model.Year);
 
             _uow.ClassRepository.Add(entity);
 
@@ -81,7 +82,42 @@ namespace UoW.Api.Controllers
 
             return Ok();
         }
-        
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UpdateClassDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var entity = await _uow.ClassRepository.GetByIdAsync(model.Id, track: true);
+
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Name))
+            {
+                entity.AlterClassName(model.Name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.TeacherName))
+            {
+                entity.AlterTeacherName(model.TeacherName);
+            }
+
+            if (model.Year.HasValue)
+            {
+                entity.AlterYear(model.Year.Value);
+            }
+
+            await _uow.CommitAsync();
+
+            return Ok();
+        }
+
         [HttpPost("add-student")]
         public async Task<IActionResult> AddStudent([FromBody] ClassStudentDto model)
         {
@@ -130,7 +166,7 @@ namespace UoW.Api.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var entity = await _uow.ClassRepository.GetByIdAsync(id, true);
+            var entity = await _uow.ClassRepository.GetByIdAsync(id, track: true);
 
             if (entity == null)
             {
