@@ -12,9 +12,8 @@ using UoW.Api.DTOs.Output;
 
 namespace UoW.Api.Controllers
 {
-    [ApiController]
     [Route("student")]
-    public class StudentController : ControllerBase
+    public class StudentController : MainController
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
@@ -70,16 +69,22 @@ namespace UoW.Api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return CustomResponse(ModelState);
             }
+            try
+            {
+                var entity = new Student(model.Name, model.BirthDate);
 
-            var entity = new Student(model.Name, model.BirthDate);
+                _uow.StudentRepository.Add(entity);
 
-            _uow.StudentRepository.Add(entity);
+                await _uow.CommitAsync();
 
-            await _uow.CommitAsync();
-
-            return Ok();
+                return CustomResponse(_mapper.Map<ClassDto>(entity));
+            }
+            catch (Exception ex)
+            {
+                return CustomResponse(ex);
+            }
         }
 
 
@@ -88,48 +93,63 @@ namespace UoW.Api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return CustomResponse(ModelState);
             }
-
-            var entity = await _uow.StudentRepository.GetByIdAsync(model.Id, track: true);
-
-            if (entity == null)
+            try
             {
-                return NotFound();
-            }
+                var entity = await _uow.StudentRepository.GetByIdAsync(model.Id, track: true);
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+                if (entity is null)
+                {
+                    NotifyError("Student not found!");
+                    return CustomResponse();
+                }
+
+                if (!string.IsNullOrWhiteSpace(model.Name))
+                {
+                    entity.AlterName(model.Name);
+                }
+
+                if (model.BirthDate.HasValue)
+                {
+                    entity.AlterBirthDate(model.BirthDate.Value);
+                }
+
+                await _uow.CommitAsync();
+
+                return CustomResponse(_mapper.Map<ClassDto>(entity));
+            }
+            catch (Exception ex)
             {
-                entity.AlterName(model.Name);
+                return CustomResponse(ex);
             }
-            
-            if (model.BirthDate.HasValue)
-            {
-                entity.AlterBirthDate(model.BirthDate.Value);
-            }
-
-            await _uow.CommitAsync();
-
-            return Ok();
         }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var entity = await _uow.StudentRepository.GetByIdAsync(id);
-
-            if (entity == null)
+            try
             {
-                return NotFound();
+                var entity = await _uow.StudentRepository.GetByIdAsync(id);
+
+                if (entity is null)
+                {
+                    NotifyError("Student not found!");
+                    return CustomResponse();
+                }
+
+                entity.Remove();
+
+                _uow.StudentRepository.Update(entity);
+
+                await _uow.CommitAsync();
+
+                return CustomResponse();
             }
-
-            entity.Remove();
-
-            _uow.StudentRepository.Update(entity);
-
-            await _uow.CommitAsync();
-
-            return Ok();
+            catch (Exception ex)
+            {
+                return CustomResponse(ex);
+            }
         }
     }
 }

@@ -13,9 +13,8 @@ using UoW.Api.DTOs.Output;
 
 namespace UoW.Api.Controllers
 {
-    [ApiController]
     [Route("class")]
-    public class ClassController : ControllerBase
+    public class ClassController : MainController
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
@@ -71,16 +70,22 @@ namespace UoW.Api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return CustomResponse(ModelState);
             }
+            try
+            {
+                var entity = new Class(model.Name, model.TeacherName, model.Year);
 
-            var entity = new Class(model.Name, model.TeacherName, model.Year);
+                _uow.ClassRepository.Add(entity);
 
-            _uow.ClassRepository.Add(entity);
+                await _uow.CommitAsync();
 
-            await _uow.CommitAsync();
-
-            return Ok();
+                return CustomResponse(_mapper.Map<StudentDto>(entity));
+            }
+            catch (Exception ex)
+            {
+                return CustomResponse(ex);
+            }
         }
 
         [HttpPut]
@@ -88,34 +93,41 @@ namespace UoW.Api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return CustomResponse(ModelState);
             }
-
-            var entity = await _uow.ClassRepository.GetByIdAsync(model.Id, track: true);
-
-            if (entity == null)
+            try
             {
-                return NotFound();
-            }
+                var entity = await _uow.ClassRepository.GetByIdAsync(model.Id, track: true);
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+                if (entity == null)
+                {
+                    NotifyError("Class not found!");
+                    return CustomResponse();
+                }
+
+                if (!string.IsNullOrWhiteSpace(model.Name))
+                {
+                    entity.AlterClassName(model.Name);
+                }
+
+                if (!string.IsNullOrWhiteSpace(model.TeacherName))
+                {
+                    entity.AlterTeacherName(model.TeacherName);
+                }
+
+                if (model.Year.HasValue)
+                {
+                    entity.AlterYear(model.Year.Value);
+                }
+
+                await _uow.CommitAsync();
+
+                return CustomResponse(_mapper.Map<StudentDto>(entity));
+            }
+            catch (Exception ex)
             {
-                entity.AlterClassName(model.Name);
+                return CustomResponse(ex);
             }
-
-            if (!string.IsNullOrWhiteSpace(model.TeacherName))
-            {
-                entity.AlterTeacherName(model.TeacherName);
-            }
-
-            if (model.Year.HasValue)
-            {
-                entity.AlterYear(model.Year.Value);
-            }
-
-            await _uow.CommitAsync();
-
-            return Ok();
         }
 
         [HttpPost("add-student")]
@@ -123,22 +135,31 @@ namespace UoW.Api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return CustomResponse(ModelState);
             }
-
-            var classEntity = await _uow.ClassRepository.GetFullByIdAsync(model.ClassId, true);
-            var studentEntity = await _uow.StudentRepository.GetByIdAsync(model.StudentId);
-
-            if (classEntity is null || studentEntity is null)
+            try
             {
-                return NotFound();
+                var classEntity = await _uow.ClassRepository.GetFullByIdAsync(model.ClassId, true);
+                var studentEntity = await _uow.StudentRepository.GetByIdAsync(model.StudentId);
+
+                if (classEntity is null || studentEntity is null)
+                {
+                    if(classEntity is null) NotifyError("Class not found!");
+                    if(studentEntity is null) NotifyError("Student not found!");
+
+                    return CustomResponse();
+                }
+
+                classEntity.AddStudent(studentEntity);
+
+                await _uow.CommitAsync();
+
+                return CustomResponse(model);
             }
-
-            classEntity.AddStudent(studentEntity);
-
-            await _uow.CommitAsync();
-
-            return Ok();
+            catch (Exception ex)
+            {
+                return CustomResponse(ex);
+            }
         }
         
         [HttpDelete("remove-student")]
@@ -146,40 +167,55 @@ namespace UoW.Api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return CustomResponse(ModelState);
             }
-
-            var classEntity = await _uow.ClassRepository.GetFullByIdAsync(model.ClassId, true);
-
-            if (classEntity is null)
+            try
             {
-                return NotFound();
+                var classEntity = await _uow.ClassRepository.GetFullByIdAsync(model.ClassId, true);
+
+                if (classEntity is null)
+                {
+                    NotifyError("Class not found!");
+                    return CustomResponse();
+                }
+
+                classEntity.RemoveStudent(model.StudentId);
+
+                await _uow.CommitAsync();
+
+                return CustomResponse();
             }
-
-            classEntity.RemoveStudent(model.StudentId);
-            
-            await _uow.CommitAsync();
-
-            return Ok();
+            catch (Exception ex)
+            {
+                return CustomResponse(ex);
+            }
         }
         
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var entity = await _uow.ClassRepository.GetByIdAsync(id, track: true);
-
-            if (entity == null)
+            try
             {
-                return NotFound();
+                var entity = await _uow.ClassRepository.GetByIdAsync(id, track: true);
+
+                if (entity is null)
+                {
+                    NotifyError("Class not found!");
+                    return CustomResponse();
+                }
+
+                entity.Remove();
+
+                _uow.ClassRepository.Update(entity);
+
+                await _uow.CommitAsync();
+
+                return CustomResponse();
             }
-
-            entity.Remove();
-
-            _uow.ClassRepository.Update(entity);
-
-            await _uow.CommitAsync();
-
-            return Ok();
+            catch (Exception ex)
+            {
+                return CustomResponse(ex);
+            }
         }
     }
 }
