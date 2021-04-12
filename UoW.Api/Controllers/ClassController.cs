@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc; 
 using UoW.Api.Domain.Entities;
 using UoW.Api.Domain.Filters;
 using UoW.Api.Domain.Interfaces;
-using UoW.Api.DTOs;
 using UoW.Api.DTOs.Input;
 using UoW.Api.DTOs.Output;
 

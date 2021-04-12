@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using UoW.Api.Domain.Entities;
-using UoW.Api.DTOs.Input;
 using UoW.Api.DTOs.Output;
 
 namespace UoW.Api.Mapping

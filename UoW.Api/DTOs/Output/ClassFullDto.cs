@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UoW.Api.Domain.Entities;
 
 namespace UoW.Api.DTOs.Output
 {
