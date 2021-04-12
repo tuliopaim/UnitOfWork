@@ -38,13 +38,12 @@ namespace UoW.Api.Data.Repositories.Base
         
         public virtual void Update(T entity)
         {
-            _dbSet.Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
-        }
+            if (_context.Entry(entity).State == EntityState.Detached)
+            {
+                _dbSet.Attach(entity);
+            }
 
-        public virtual async Task<T> GetByIdAsync(Guid id, bool track = false)
-        {
-            return await BuildQuery(track: track).FirstOrDefaultAsync(x => x.Id == id);
+            _context.Entry(entity).State = EntityState.Modified;
         }
 
         public virtual async Task<int> CountAsync(Expression<Func<T, bool>> expression)
@@ -52,6 +51,14 @@ namespace UoW.Api.Data.Repositories.Base
             return await _dbSet.CountAsync(expression);
         }
 
+        public virtual async Task<T> GetByIdAsync(
+            Guid id,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+            bool track = false)
+        {
+            return await BuildQuery(include: include, track: track).FirstOrDefaultAsync(x => x.Id == id);
+        }
+        
         public virtual async Task<T> FirstAsync(
             Expression<Func<T, bool>> expression,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,

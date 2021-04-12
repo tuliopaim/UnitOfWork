@@ -21,10 +21,7 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<Class> GetFullByIdAsync(Guid id, bool track = false)
         {
-            return await FirstAsync(
-                x => x.Id == id,
-                FullClassQuery(),
-                track);
+            return await GetByIdAsync(id, FullClassQuery(), track);
         }
 
         public async Task<IEnumerable<Class>> GetFullAsync(bool track = false)
@@ -34,9 +31,7 @@ namespace UoW.Api.Data.Repositories
                 track: track);
         }
 
-        public async Task<IEnumerable<Class>> FilterAsync(
-            ClassFilter filter,
-            bool track = false)
+        public async Task<IEnumerable<Class>> FilterAsync(ClassFilter filter, bool track = false)
         {
             var query = _context.Classes.OrderBy(x => x.Code).AsQueryable();
 

@@ -12,8 +12,6 @@ namespace UoW.Api.Domain.Interfaces
 
         Task<Class> GetFullByIdAsync(Guid id, bool track = false);
 
-        Task<IEnumerable<Class>> FilterAsync(
-            ClassFilter filter,
-            bool track = false);
+        Task<IEnumerable<Class>> FilterAsync(ClassFilter filter, bool track = false);
     }
 }

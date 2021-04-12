@@ -23,10 +23,7 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<Student> GetFullByIdAsync(Guid id, bool track = false)
         {
-            return await FirstAsync(
-                x => x.Id == id,
-                FullStudentQuery(),
-                track);
+            return await GetByIdAsync(id, FullStudentQuery(), track);
         }
 
         public async Task<IEnumerable<Student>> GetFullAsync(bool track = false)

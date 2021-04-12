@@ -12,16 +12,18 @@ namespace UoW.Api.Domain.Interfaces
         void Add(T entity);
         void Remove(T entity);
         void Update(T entity);
-        
-        Task<T> GetByIdAsync(Guid id, bool track = false);
+        Task<int> CountAsync(Expression<Func<T, bool>> expression);
+
+        Task<T> GetByIdAsync(
+            Guid id,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+            bool track = false);
 
         Task<T> FirstAsync(
             Expression<Func<T, bool>> expression,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
             bool track = false);
-
-        Task<int> CountAsync(Expression<Func<T, bool>> expression);
-
+        
         Task<List<T>> GetAsync(
             Expression<Func<T, bool>> expression = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
