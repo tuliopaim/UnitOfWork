@@ -26,14 +26,12 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<IEnumerable<Class>> GetFullAsync(bool track = false)
         {
-            return await GetAsync(
-                include: FullClassQuery(),
-                track: track);
+            return await GetAsync(include: FullClassQuery(), track: track);
         }
 
         public async Task<IEnumerable<Class>> FilterAsync(ClassFilter filter, bool track = false)
         {
-            var query = _context.Classes.OrderBy(x => x.Code).AsQueryable();
+            var query = _context.Classes.OrderBy(x => x.CreatedAt).AsQueryable();
 
             if (!track) query = query.AsNoTracking();
 

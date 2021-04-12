@@ -94,7 +94,7 @@ namespace UoW.Api.Data.Repositories.Base
 
             if (include != null) query = include(query);
 
-            if (orderBy != null) query = orderBy(query);
+            query = orderBy != null ? orderBy(query) : query.OrderBy(x => x.CreatedAt);
 
             if (skip.HasValue) query = query.Skip(skip.Value);
 

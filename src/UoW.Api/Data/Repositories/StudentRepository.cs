@@ -27,10 +27,7 @@ namespace UoW.Api.Data.Repositories
 
         public async Task<IEnumerable<Student>> GetFullAsync(bool track = false)
         {
-            return await GetAsync(
-                include: FullStudentQuery(),
-                orderBy: q => q.OrderBy(s => s.CreatedAt),
-                track: track);
+            return await GetAsync(include: FullStudentQuery(), track: track);
         }
 
         public async Task<IEnumerable<Student>> FilterAsync(StudentFilter filter, bool track = false)
