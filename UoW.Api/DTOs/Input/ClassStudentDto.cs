@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace UoW.Api.DTOs
+namespace UoW.Api.DTOs.Input
 {
     public class ClassStudentDto
     {

@@ -21,8 +21,8 @@ namespace UoW.Api.Domain.Entities
         public string Name { get; private set; }
 
         public DateTime BirthDate { get; private set; }
-
         
+
         private List<Class> _classes;
         public IReadOnlyList<Class> Classes => _classes;
 
