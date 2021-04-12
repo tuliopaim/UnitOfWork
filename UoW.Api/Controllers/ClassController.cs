@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc; 
 using UoW.Api.Domain.Entities;
 using UoW.Api.Domain.Filters;
 using UoW.Api.Domain.Interfaces;
 using UoW.Api.DTOs;
 using UoW.Api.DTOs.Input;
+using UoW.Api.DTOs.Output;
 
 namespace UoW.Api.Controllers
 {
@@ -15,40 +19,52 @@ namespace UoW.Api.Controllers
     public class ClassController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
-        public ClassController(IUnitOfWork uow)
+        public ClassController(IUnitOfWork uow, IMapper mapper)
         {
             _uow = uow;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Class>> Get()
+        public async Task<IEnumerable<ClassDto>> Get()
         {
-            return await _uow.ClassRepository.GetAsync();
+            var list = await _uow.ClassRepository.GetAsync();
+
+            return list?.Select(_mapper.Map<ClassDto>);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<Class> GetById(Guid id)
+        public async Task<ClassDto> GetById(Guid id)
         {
-            return await _uow.ClassRepository.GetByIdAsync(id);
+            var entity = await _uow.ClassRepository.GetByIdAsync(id);
+
+            return _mapper.Map<ClassDto>(entity);
         }
 
         [HttpGet("full")]
-        public async Task<IEnumerable<Class>> GetFull()
+        public async Task<IEnumerable<ClassFullDto>> GetFull()
         {
-            return await _uow.ClassRepository.GetFullAsync();
+            var list = await _uow.ClassRepository.GetFullAsync();
+
+            return list?.Select(_mapper.Map<ClassFullDto>);
         }
 
         [HttpGet("full/{id:guid}")]
-        public async Task<Class> GetFullById(Guid id)
+        public async Task<ClassFullDto> GetFullById(Guid id)
         {
-            return await _uow.ClassRepository.GetFullByIdAsync(id);
+            var entity = await _uow.ClassRepository.GetFullByIdAsync(id);
+
+            return _mapper.Map<ClassFullDto>(entity);
         }
 
         [HttpPost("filter")]
-        public async Task<IEnumerable<Class>> Filter([FromBody] ClassFilter filter)
+        public async Task<IEnumerable<ClassFullDto>> Filter([FromBody] ClassFilter filter)
         {
-            return await _uow.ClassRepository.FilterAsync(filter);
+            var list = await _uow.ClassRepository.FilterAsync(filter);
+
+            return list?.Select(_mapper.Map<ClassFullDto>);
         }
 
         [HttpPost]

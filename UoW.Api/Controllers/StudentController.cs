@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using UoW.Api.Domain.Entities;
 using UoW.Api.Domain.Filters;
 using UoW.Api.Domain.Interfaces;
 using UoW.Api.DTOs;
 using UoW.Api.DTOs.Input;
+using UoW.Api.DTOs.Output;
 
 namespace UoW.Api.Controllers
 {
@@ -15,40 +18,52 @@ namespace UoW.Api.Controllers
     public class StudentController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
-        public StudentController(IUnitOfWork uow)
+        public StudentController(IUnitOfWork uow, IMapper mapper)
         {
             _uow = uow;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Student>> Get()
+        public async Task<IEnumerable<StudentDto>> Get()
         {
-            return await _uow.StudentRepository.GetAsync();
+            var list = await _uow.StudentRepository.GetAsync();
+
+            return list?.Select(_mapper.Map<StudentDto>);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<Student> GetById(Guid id)
+        public async Task<StudentDto> GetById(Guid id)
         {
-            return await _uow.StudentRepository.GetByIdAsync(id);
+            var entity = await _uow.StudentRepository.GetByIdAsync(id);
+
+            return _mapper.Map<StudentDto>(entity);
         }
 
         [HttpGet("full")]
-        public async Task<IEnumerable<Student>> GetFull()
+        public async Task<IEnumerable<StudentFullDto>> GetFull()
         {
-            return await _uow.StudentRepository.GetFullAsync();
+            var list = await _uow.StudentRepository.GetFullAsync();
+
+            return list?.Select(_mapper.Map<StudentFullDto>);
         }
 
         [HttpGet("full/{id:guid}")]
-        public async Task<Student> GetFullById(Guid id)
+        public async Task<StudentFullDto> GetFullById(Guid id)
         {
-            return await _uow.StudentRepository.GetFullByIdAsync(id);
+            var entity = await _uow.StudentRepository.GetFullByIdAsync(id);
+
+            return _mapper.Map<StudentFullDto>(entity);
         }
 
         [HttpPost("filter")]
-        public async Task<IEnumerable<Student>> Filter([FromBody] StudentFilter filter)
+        public async Task<IEnumerable<StudentFullDto>> Filter([FromBody] StudentFilter filter)
         {
-            return await _uow.StudentRepository.FilterAsync(filter);
+            var list = await _uow.StudentRepository.FilterAsync(filter);
+
+            return list?.Select(_mapper.Map<StudentFullDto>);
         }
 
         [HttpPost]
