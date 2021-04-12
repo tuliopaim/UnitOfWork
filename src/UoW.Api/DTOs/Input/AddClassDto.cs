@@ -13,6 +13,6 @@ namespace UoW.Api.DTOs.Input
         public string TeacherName { get; set; }
         
         [Range(2000, int.MaxValue)]
-        public int Year { get; set; }
+        public int? Year { get; set; }
     }
 }
