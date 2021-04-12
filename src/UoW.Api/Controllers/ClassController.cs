@@ -80,7 +80,7 @@ namespace UoW.Api.Controllers
 
                 await _uow.CommitAsync();
 
-                return CustomResponse(_mapper.Map<StudentDto>(entity));
+                return CustomResponse(_mapper.Map<ClassDto>(entity));
             }
             catch (Exception ex)
             {
@@ -122,7 +122,7 @@ namespace UoW.Api.Controllers
 
                 await _uow.CommitAsync();
 
-                return CustomResponse(_mapper.Map<StudentDto>(entity));
+                return CustomResponse(_mapper.Map<ClassDto>(entity));
             }
             catch (Exception ex)
             {
